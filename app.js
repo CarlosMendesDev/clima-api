@@ -15,9 +15,21 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/get-weather', async (req, res) => {
   const { latitude, longitude } = req.body;
 
-  const response = await axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&appid=${key}`);
+  const { data: weather } = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&lang=pt_br&units=metric&appid=${key}`);
+  const { data: oneCall } = await axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&lang=pt_br&units=metric&appid=${key}`);
 
-  res.send(response.data);
+  const weekday = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+
+  oneCall.daily.forEach((date) => {
+    const day = new Date(date.dt * 1000).getDay();
+
+    date.day = weekday[day];
+  });
+
+  res.send({
+    city: weather.name,
+    prevision: oneCall.daily
+  });
 });
 
 app.listen(process.env.PORT || port, () => {
