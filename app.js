@@ -26,9 +26,21 @@ app.post('/get-weather', async (req, res) => {
     date.day = weekday[day];
   });
 
+  const table = oneCall.daily.map((date) => {
+    const rows = {
+      weekDays: date.day,
+      iconTemperature: date.weather[0].icon,
+      maxTemperature: `${Math.floor(date.temp.max)}°`, 
+      minTemperature: `${Math.floor(date.temp.min)}°`,
+    };
+
+    return rows;
+  });
+
   res.send({
     city: weather.name,
-    prevision: oneCall.daily
+    prevision: oneCall.daily,
+    table
   });
 });
 
